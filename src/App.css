@@ -1,0 +1,62 @@
+/* Base colors for the light theme. */
+.todo-app {
+    --app-bg: #ffffff;
+    --app-text: #242424;
+    --app-border: #d1d5db;
+    --button-bg: #e5e7eb;
+    --button-text: #111827;
+
+    min-height: 100vh;
+    padding: 2rem;
+    background: var(--app-bg);
+    color: var(--app-text);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* Override colors when dark mode is selected. */
+.todo-app[data-theme="dark"] {
+    --app-bg: #18181b;
+    --app-text: #f4f4f5;
+    --app-border: #52525b;
+    --button-bg: #3f3f46;
+    --button-text: #ffffff;
+}
+
+/* Keep the title and theme toggle together. */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Apply theme colors to form controls. */
+.todo-app input,
+.todo-app button {
+    color: var(--app-text);
+    background: var(--app-bg);
+    border: 1px solid var(--app-border);
+    border-radius: 6px;
+    padding: 0.6rem;
+}
+
+.todo-app button {
+    background: var(--button-bg);
+    color: var(--button-text);
+    cursor: pointer;
+}
+
+.todo-app button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Preserve readable text when switching themes. */
+.todo-app h1,
+.todo-app h2,
+.todo-app p,
+.todo-app label,
+.todo-app span {
+    color: var(--app-text);
+}
