@@ -5,31 +5,35 @@ import {
     type ReactNode,
 } from "react";
 
-// Describe the data stored in each todo.
+// Define the structure of an individual todo.
 export interface Todo {
     id: string;
     text: string;
     completed: boolean;
 }
 
-// Describe the shared state and available actions.
+// Define the shared todo state and all available actions.
 interface TodoContextType {
     todos: Todo[];
     addTodo: (text: string) => void;
     toggleTodo: (id: string) => void;
     editTodo: (id: string, newText: string) => void;
     deleteTodo: (id: string) => void;
+    clearCompleted: () => void;
 }
 
+// Create the shared context.
+// Undefined allows us to detect a missing provider.
 const TodoContext = createContext<TodoContextType | undefined>(
     undefined
 );
 
+// Define the children accepted by the provider.
 interface TodoProviderProps {
     children: ReactNode;
 }
 
-// Provide shared todo state to child components.
+// Manage shared todo state and expose actions to child components.
 export function TodoProvider({ children }: TodoProviderProps) {
     const [todos, setTodos] = useState<Todo[]>([]);
 
@@ -37,6 +41,7 @@ export function TodoProvider({ children }: TodoProviderProps) {
     function addTodo(text: string) {
         const trimmedText = text.trim();
 
+        // Prevent empty or whitespace-only tasks.
         if (!trimmedText) return;
 
         const newTodo: Todo = {
@@ -48,7 +53,7 @@ export function TodoProvider({ children }: TodoProviderProps) {
         setTodos((previousTodos) => [...previousTodos, newTodo]);
     }
 
-    // Reverse the completed status of the matching task.
+    // Toggle the completion status of the matching task.
     function toggleTodo(id: string) {
         setTodos((previousTodos) =>
             previousTodos.map((todo) =>
@@ -59,10 +64,11 @@ export function TodoProvider({ children }: TodoProviderProps) {
         );
     }
 
-    // Replace the text of a matching task.
+    // Update the text of an existing task.
     function editTodo(id: string, newText: string) {
         const trimmedText = newText.trim();
 
+        // Do not allow a task to be saved with empty text.
         if (!trimmedText) return;
 
         setTodos((previousTodos) =>
@@ -74,13 +80,21 @@ export function TodoProvider({ children }: TodoProviderProps) {
         );
     }
 
-    // Remove the selected task from the list.
+    // Remove a specific task using its unique ID.
     function deleteTodo(id: string) {
         setTodos((previousTodos) =>
             previousTodos.filter((todo) => todo.id !== id)
         );
     }
 
+    // Remove all completed tasks while preserving active tasks.
+    function clearCompleted() {
+        setTodos((previousTodos) =>
+            previousTodos.filter((todo) => !todo.completed)
+        );
+    }
+
+    // Make the shared state and actions available to consumers.
     return (
         <TodoContext.Provider
             value={{
@@ -89,6 +103,7 @@ export function TodoProvider({ children }: TodoProviderProps) {
                 toggleTodo,
                 editTodo,
                 deleteTodo,
+                clearCompleted,
             }}
         >
             {children}
@@ -96,10 +111,11 @@ export function TodoProvider({ children }: TodoProviderProps) {
     );
 }
 
-// Access context only from inside TodoProvider.
+// Custom hook for accessing the shared todo context.
 export function useTodos() {
     const context = useContext(TodoContext);
 
+    // Prevent the hook from being used outside its provider.
     if (context === undefined) {
         throw new Error("useTodos must be used within a TodoProvider");
     }
