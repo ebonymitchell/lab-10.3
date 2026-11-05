@@ -16,28 +16,26 @@ export interface Todo {
 interface TodoContextType {
     todos: Todo[];
     addTodo: (text: string) => void;
+    toggleTodo: (id: string) => void;
 }
 
-// Create the context. Undefined helps us detect
-// components that are missing the provider.
+// Create the shared context.
 const TodoContext = createContext<TodoContextType | undefined>(
     undefined
 );
 
-// Define the children accepted by our provider.
 interface TodoProviderProps {
     children: ReactNode;
 }
 
-// The provider manages shared todo state.
+// Manage shared todo state and actions.
 export function TodoProvider({ children }: TodoProviderProps) {
     const [todos, setTodos] = useState<Todo[]>([]);
 
-    // Add a new todo without modifying the existing array.
+    // Add a new task to the existing list.
     function addTodo(text: string) {
         const trimmedText = text.trim();
 
-        // Prevent empty tasks from being added.
         if (!trimmedText) return;
 
         const newTodo: Todo = {
@@ -49,14 +47,25 @@ export function TodoProvider({ children }: TodoProviderProps) {
         setTodos((previousTodos) => [...previousTodos, newTodo]);
     }
 
+    // Toggle the completion status of the selected task.
+    function toggleTodo(id: string) {
+        setTodos((previousTodos) =>
+            previousTodos.map((todo) =>
+                todo.id === id
+                    ? { ...todo, completed: !todo.completed }
+                    : todo
+            )
+        );
+    }
+
     return (
-        <TodoContext.Provider value={{ todos, addTodo }}>
+        <TodoContext.Provider value={{ todos, addTodo, toggleTodo }}>
             {children}
         </TodoContext.Provider>
     );
 }
 
-// Custom hook for accessing the todo context.
+// Safely access the shared todo context.
 export function useTodos() {
     const context = useContext(TodoContext);
 

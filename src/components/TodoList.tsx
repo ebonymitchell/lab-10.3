@@ -1,8 +1,8 @@
 import { useTodos } from "../contexts/TodoContext";
+import TodoItem from "./TodoItem";
 
-// Display all todos stored in the shared TodoContext.
+// Display all todos from the shared context.
 export default function TodoList() {
-    // Read the current todos directly from context.
     const { todos } = useTodos();
 
     return (
@@ -14,7 +14,7 @@ export default function TodoList() {
             ) : (
                 <ul>
                     {todos.map((todo) => (
-                        <li key={todo.id}>{todo.text}</li>
+                        <TodoItem key={todo.id} todo={todo} />
                     ))}
                 </ul>
             )}
