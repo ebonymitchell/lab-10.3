@@ -1,35 +1,17 @@
-import { TodoProvider, useTodos } from "./contexts/TodoContext";
+import { TodoProvider } from "./contexts/TodoContext";
+import TodoInput from "./components/TodoInput";
+import TodoList from "./components/TodoList";
 import "./App.css";
 
-// Temporary test component for our first context feature.
-function TodoTest() {
-  const { todos, addTodo } = useTodos();
-
-  return (
-    <main>
-      <h1>Context API Todo App</h1>
-
-      <button onClick={() => addTodo("Learn React Context API")}>
-        Add Test Todo
-      </button>
-
-      <h2>Todos ({todos.length})</h2>
-
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.text}</li>
-        ))}
-      </ul>
-    </main>
-  );
-}
-
-// Wrap the component with the provider so it can
-// access the shared todo state.
+// The provider shares todo state with both components.
 export default function App() {
   return (
     <TodoProvider>
-      <TodoTest />
+      <main>
+        <h1>Context API Todo App</h1>
+        <TodoInput />
+        <TodoList />
+      </main>
     </TodoProvider>
   );
 }
