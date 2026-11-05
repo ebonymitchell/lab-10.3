@@ -1,20 +1,25 @@
 import { TodoProvider } from "./contexts/TodoContext";
+import { FilterProvider } from "./contexts/FilterContext";
 import TodoInput from "./components/TodoInput";
 import TodoList from "./components/TodoList";
+import FilterButtons from "./components/FilterButtons";
 import ClearCompletedButton from "./components/ClearCompletedButton";
 import "./App.css";
 
-// Provide shared todo state to the application.
+// Both providers make their independent state available to the app.
 export default function App() {
   return (
     <TodoProvider>
-      <main>
-        <h1>Context API Todo App</h1>
+      <FilterProvider>
+        <main>
+          <h1>Context API Todo App</h1>
 
-        <TodoInput />
-        <TodoList />
-        <ClearCompletedButton />
-      </main>
+          <TodoInput />
+          <FilterButtons />
+          <TodoList />
+          <ClearCompletedButton />
+        </main>
+      </FilterProvider>
     </TodoProvider>
   );
 }
