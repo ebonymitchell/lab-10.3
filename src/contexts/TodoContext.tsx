@@ -1,19 +1,21 @@
 import {
     createContext,
+    useCallback,
     useContext,
     useEffect,
+    useMemo,
     useState,
     type ReactNode,
 } from "react";
 
-// Define the structure of an individual todo.
+// Define the structure of each todo.
 export interface Todo {
     id: string;
     text: string;
     completed: boolean;
 }
 
-// Define shared todo state and actions.
+// Define the shared todo state and available actions.
 interface TodoContextType {
     todos: Todo[];
     addTodo: (text: string) => void;
@@ -33,7 +35,7 @@ interface TodoProviderProps {
 
 const STORAGE_KEY = "context-api-todos";
 
-// Validate data retrieved from localStorage.
+// Validate data restored from localStorage.
 function isTodoArray(value: unknown): value is Todo[] {
     return (
         Array.isArray(value) &&
@@ -48,7 +50,7 @@ function isTodoArray(value: unknown): value is Todo[] {
     );
 }
 
-// Restore previously saved todos when state initializes.
+// Restore previously saved todos.
 function loadTodos(): Todo[] {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -59,17 +61,14 @@ function loadTodos(): Todo[] {
 
         return isTodoArray(parsed) ? parsed : [];
     } catch {
-        // Fall back to an empty list if storage is unavailable
-        // or contains invalid JSON.
         return [];
     }
 }
 
 export function TodoProvider({ children }: TodoProviderProps) {
-    // Lazy initialization reads localStorage on initial render.
     const [todos, setTodos] = useState<Todo[]>(loadTodos);
 
-    // Persist the latest todo state whenever it changes.
+    // Save todos whenever the list changes.
     useEffect(() => {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -78,8 +77,8 @@ export function TodoProvider({ children }: TodoProviderProps) {
         }
     }, [todos]);
 
-    // Add a new task.
-    function addTodo(text: string) {
+    // useCallback keeps each action's function reference stable.
+    const addTodo = useCallback((text: string) => {
         const trimmedText = text.trim();
 
         if (!trimmedText) return;
@@ -91,10 +90,9 @@ export function TodoProvider({ children }: TodoProviderProps) {
         };
 
         setTodos((previousTodos) => [...previousTodos, newTodo]);
-    }
+    }, []);
 
-    // Toggle the completed status of a task.
-    function toggleTodo(id: string) {
+    const toggleTodo = useCallback((id: string) => {
         setTodos((previousTodos) =>
             previousTodos.map((todo) =>
                 todo.id === id
@@ -102,54 +100,65 @@ export function TodoProvider({ children }: TodoProviderProps) {
                     : todo
             )
         );
-    }
+    }, []);
 
-    // Edit the text of a task.
-    function editTodo(id: string, newText: string) {
-        const trimmedText = newText.trim();
+    const editTodo = useCallback(
+        (id: string, newText: string) => {
+            const trimmedText = newText.trim();
 
-        if (!trimmedText) return;
+            if (!trimmedText) return;
 
-        setTodos((previousTodos) =>
-            previousTodos.map((todo) =>
-                todo.id === id
-                    ? { ...todo, text: trimmedText }
-                    : todo
-            )
-        );
-    }
+            setTodos((previousTodos) =>
+                previousTodos.map((todo) =>
+                    todo.id === id
+                        ? { ...todo, text: trimmedText }
+                        : todo
+                )
+            );
+        },
+        []
+    );
 
-    // Delete a task by its ID.
-    function deleteTodo(id: string) {
+    const deleteTodo = useCallback((id: string) => {
         setTodos((previousTodos) =>
             previousTodos.filter((todo) => todo.id !== id)
         );
-    }
+    }, []);
 
-    // Remove completed tasks while preserving active tasks.
-    function clearCompleted() {
+    const clearCompleted = useCallback(() => {
         setTodos((previousTodos) =>
             previousTodos.filter((todo) => !todo.completed)
         );
-    }
+    }, []);
+
+    // Recreate the context value only when its dependencies change.
+    const contextValue = useMemo(
+        () => ({
+            todos,
+            addTodo,
+            toggleTodo,
+            editTodo,
+            deleteTodo,
+            clearCompleted,
+        }),
+        [
+            todos,
+            addTodo,
+            toggleTodo,
+            editTodo,
+            deleteTodo,
+            clearCompleted,
+        ]
+    );
 
     return (
-        <TodoContext.Provider
-            value={{
-                todos,
-                addTodo,
-                toggleTodo,
-                editTodo,
-                deleteTodo,
-                clearCompleted,
-            }}
-        >
+        <TodoContext.Provider value={contextValue}>
             {children}
         </TodoContext.Provider>
     );
 }
 
-// Access shared todo state from components inside the provider.
+// Access shared todo state from inside the provider.
 export function useTodos() {
     const context = useContext(TodoContext);
 
