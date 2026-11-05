@@ -1,62 +1,217 @@
-/* Base colors for the light theme. */
+/* Main application layout and light theme colors. */
 .todo-app {
-    --app-bg: #ffffff;
-    --app-text: #242424;
+    --app-bg: #f3f4f6;
+    --app-text: #111827;
+    --card-bg: #ffffff;
     --app-border: #d1d5db;
+    --input-bg: #ffffff;
     --button-bg: #e5e7eb;
     --button-text: #111827;
+    --accent: #4f46e5;
+    --muted-text: #6b7280;
 
     min-height: 100vh;
-    padding: 2rem;
+    padding: 3rem max(1.5rem, calc((100% - 850px) / 2));
     background: var(--app-bg);
     color: var(--app-text);
     transition: background-color 0.2s, color 0.2s;
 }
 
-/* Override colors when dark mode is selected. */
+/* Dark theme overrides the shared color variables. */
 .todo-app[data-theme="dark"] {
-    --app-bg: #18181b;
-    --app-text: #f4f4f5;
-    --app-border: #52525b;
-    --button-bg: #3f3f46;
-    --button-text: #ffffff;
+    --app-bg: #111827;
+    --app-text: #f9fafb;
+    --card-bg: #1f2937;
+    --app-border: #374151;
+    --input-bg: #273449;
+    --button-bg: #374151;
+    --button-text: #f9fafb;
+    --accent: #818cf8;
+    --muted-text: #9ca3af;
 }
 
-/* Keep the title and theme toggle together. */
+/* Header places the title and theme toggle side by side. */
 .app-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
 }
 
-/* Apply theme colors to form controls. */
-.todo-app input,
+.app-header h1 {
+    margin: 0;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+}
+
+/* Shared styling for all buttons. */
 .todo-app button {
-    color: var(--app-text);
-    background: var(--app-bg);
+    padding: 0.7rem 1rem;
     border: 1px solid var(--app-border);
-    border-radius: 6px;
-    padding: 0.6rem;
-}
-
-.todo-app button {
+    border-radius: 8px;
     background: var(--button-bg);
     color: var(--button-text);
+    font-weight: 500;
     cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+}
+
+.todo-app button:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.todo-app button:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
 .todo-app button:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
 }
 
-/* Preserve readable text when switching themes. */
-.todo-app h1,
-.todo-app h2,
-.todo-app p,
-.todo-app label,
-.todo-app span {
+/* Style the task creation form as a horizontal row. */
+.todo-app>form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+}
+
+.todo-app>form label {
+    font-weight: 600;
+}
+
+.todo-app input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--app-border);
+    border-radius: 8px;
+    background: var(--input-bg);
     color: var(--app-text);
+}
+
+.todo-app input::placeholder {
+    color: var(--muted-text);
+}
+
+/* Filter buttons appear together with consistent spacing. */
+.todo-app nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.todo-app nav button[aria-pressed="true"] {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+}
+
+/* Todo list container. */
+.todo-app section {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+}
+
+.todo-app section h2 {
+    margin: 0 0 1.5rem;
+    font-size: 1.25rem;
+}
+
+.todo-app section p {
+    color: var(--muted-text);
+}
+
+/* Remove default list bullets and spacing. */
+.todo-app ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Style each task as an individual row. */
+.todo-app li {
+    padding: 1rem;
+    border: 1px solid var(--app-border);
+    border-radius: 8px;
+}
+
+/* Space out the checkbox, text, and action buttons. */
+.todo-app li>div,
+.todo-app li>form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.todo-app li label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.todo-app input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* Keep editing controls aligned. */
+.todo-app li form input[type="text"] {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Responsive layout for smaller screens. */
+@media (max-width: 600px) {
+    .todo-app {
+        padding: 1.5rem 1rem;
+    }
+
+    .app-header {
+        align-items: flex-start;
+    }
+
+    .todo-app>form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .todo-app li>div,
+    .todo-app li>form {
+        align-items: stretch;
+    }
+
+    .todo-app li label {
+        flex-basis: 100%;
+    }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+
+    .todo-app,
+    .todo-app button {
+        transition: none;
+    }
 }

@@ -1,0 +1,36 @@
+/* Apply consistent sizing to every element. */
+* {
+    box-sizing: border-box;
+}
+
+/* Remove browser defaults and establish global typography. */
+html,
+body,
+#root {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    min-width: 320px;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure the React root can fill the viewport. */
+#root {
+    min-height: 100vh;
+}
+
+/* Use consistent typography in interactive controls. */
+button,
+input {
+    font: inherit;
+}
+
+/* Make keyboard focus visible for accessibility. */
+:focus-visible {
+    outline: 3px solid #6366f1;
+    outline-offset: 3px;
+}
