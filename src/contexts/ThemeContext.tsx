@@ -1,20 +1,19 @@
 import {
     createContext,
     useContext,
+    useEffect,
     useState,
     type ReactNode,
 } from "react";
 
-// Restrict the theme to two supported values.
+// Define the supported theme values.
 export type Theme = "light" | "dark";
 
-// Define the shared theme state and action.
 interface ThemeContextType {
     theme: Theme;
     toggleTheme: () => void;
 }
 
-// Create the context with a missing-provider check.
 const ThemeContext = createContext<ThemeContextType | undefined>(
     undefined
 );
@@ -23,9 +22,31 @@ interface ThemeProviderProps {
     children: ReactNode;
 }
 
-// Manage the application's selected theme.
+const STORAGE_KEY = "context-api-theme";
+
+// Restore the saved theme or use light mode by default.
+function loadTheme(): Theme {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        return saved === "dark" ? "dark" : "light";
+    } catch {
+        return "light";
+    }
+}
+
 export function ThemeProvider({ children }: ThemeProviderProps) {
-    const [theme, setTheme] = useState<Theme>("light");
+    // Initialize theme from localStorage.
+    const [theme, setTheme] = useState<Theme>(loadTheme);
+
+    // Save the selected theme whenever it changes.
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_KEY, theme);
+        } catch (error) {
+            console.error("Unable to save theme:", error);
+        }
+    }, [theme]);
 
     // Switch between light and dark modes.
     function toggleTheme() {
@@ -41,7 +62,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     );
 }
 
-// Access theme state from components inside ThemeProvider.
+// Access theme state from components inside the provider.
 export function useTheme() {
     const context = useContext(ThemeContext);
 
